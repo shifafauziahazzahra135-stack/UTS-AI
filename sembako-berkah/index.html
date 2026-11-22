@@ -1,0 +1,372 @@
+﻿<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Toko Sembako Berkah - Analisis Likuiditas</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Playfair+Display:wght@700;800;900&display=swap" rel="stylesheet"/>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#070b14;--glass:rgba(255,255,255,.042);--glass2:rgba(255,255,255,.075);--b:rgba(255,255,255,.07);--b2:rgba(255,255,255,.13);--txt:#eef0f8;--muted:#606880;--dim:#8892a4;--vi:#6c63ff;--vi2:#a78bfa;--vi3:#38bdf8;--em:#10b981;--er:#f43f5e;--ey:#f59e0b;--eo:#fb923c}
+html,body{height:100%;font-family:'Inter',sans-serif;background:var(--bg);color:var(--txt);overflow:hidden}
+body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;background:radial-gradient(ellipse 1000px 700px at 10% 5%,rgba(108,99,255,.14) 0%,transparent 60%),radial-gradient(ellipse 700px 600px at 90% 95%,rgba(56,189,248,.1) 0%,transparent 60%),radial-gradient(ellipse 600px 500px at 50% 50%,rgba(16,185,129,.06) 0%,transparent 55%)}
+.wrap{position:relative;width:100vw;height:100vh;overflow:hidden;z-index:1}
+.sl{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:66px 72px 72px;overflow-y:auto;opacity:0;transform:translateY(44px) scale(.982);transition:opacity .72s cubic-bezier(.16,1,.3,1),transform .72s cubic-bezier(.16,1,.3,1);pointer-events:none}
+.sl.on{opacity:1;transform:none;pointer-events:all}
+.sl.off{opacity:0;transform:translateY(-44px) scale(.982)}
+.nb{position:fixed;top:0;left:0;right:0;z-index:500;height:50px;display:flex;align-items:center;padding:0 22px;background:rgba(7,11,20,.82);backdrop-filter:blur(22px);border-bottom:1px solid var(--b)}
+.nb-brand{font-family:'Playfair Display',serif;font-size:.9rem;font-weight:900;background:linear-gradient(135deg,var(--vi2),var(--vi3));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-right:18px;white-space:nowrap}
+.nb-tabs{display:flex;gap:1px;flex:1;overflow-x:auto;scrollbar-width:none}
+.nb-tabs::-webkit-scrollbar{display:none}
+.nbt{padding:5px 11px;border-radius:7px;font-size:.67rem;font-weight:600;letter-spacing:.3px;border:none;background:transparent;color:var(--muted);cursor:pointer;transition:.18s;white-space:nowrap}
+.nbt:hover{background:var(--glass2);color:var(--txt)}
+.nbt.on{background:rgba(108,99,255,.18);color:var(--vi2)}
+.nb-pdf{margin-left:10px;padding:5px 13px;border-radius:7px;font-size:.67rem;font-weight:700;background:rgba(108,99,255,.12);border:1px solid rgba(108,99,255,.25);color:var(--vi2);cursor:pointer;white-space:nowrap}
+.dots{position:fixed;right:16px;top:50%;transform:translateY(-50%);z-index:500;display:flex;flex-direction:column;gap:8px}
+.d{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.18);border:none;cursor:pointer;transition:.3s}
+.d.on{background:var(--vi2);box-shadow:0 0 7px var(--vi2);transform:scale(1.5)}
+.arr{position:fixed;top:50%;transform:translateY(-50%);z-index:500;width:36px;height:36px;border-radius:50%;background:var(--glass);border:1px solid var(--b2);color:rgba(255,255,255,.4);font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.2s}
+.arr:hover{background:var(--glass2);color:#fff}
+.al{left:10px}.ar{right:38px}
+.prog{position:fixed;bottom:0;left:0;right:0;z-index:500;height:2px;background:rgba(255,255,255,.04)}
+.pb{height:100%;background:linear-gradient(90deg,var(--vi),var(--vi2),var(--vi3))}
+.ctr{position:fixed;bottom:11px;left:50%;transform:translateX(-50%);z-index:500;font-size:.6rem;letter-spacing:3px;color:rgba(255,255,255,.18)}
+.hint{position:fixed;bottom:11px;left:18px;z-index:500;font-size:.56rem;letter-spacing:2px;color:rgba(255,255,255,.1)}
+.abtn{position:fixed;bottom:6px;right:44px;z-index:500;padding:3px 11px;border-radius:50px;font-size:.6rem;font-weight:700;background:var(--glass);border:1px solid var(--b);color:var(--muted);cursor:pointer;font-family:'Inter',sans-serif}
+.tag{display:inline-flex;align-items:center;padding:4px 14px;border-radius:50px;font-size:.58rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;margin-bottom:12px}
+.tg-v{background:rgba(108,99,255,.1);border:1px solid rgba(108,99,255,.22);color:var(--vi2)}
+.tg-b{background:rgba(56,189,248,.08);border:1px solid rgba(56,189,248,.18);color:var(--vi3)}
+.tg-g{background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.18);color:var(--em)}
+.tg-r{background:rgba(244,63,94,.08);border:1px solid rgba(244,63,94,.18);color:var(--er)}
+.tg-y{background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.18);color:var(--ey)}
+h1.T{font-family:'Playfair Display',serif;font-size:clamp(1.75rem,3.6vw,2.9rem);font-weight:900;line-height:1.12;text-align:center;margin-bottom:9px}
+p.S{font-size:clamp(.78rem,1.3vw,.92rem);color:var(--dim);text-align:center;line-height:1.78;max-width:620px;margin-bottom:24px}
+.gv{background:linear-gradient(135deg,var(--vi),var(--vi3));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.gg{background:linear-gradient(135deg,var(--em),var(--vi3));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.gr{background:linear-gradient(135deg,var(--er),var(--eo));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.gy{background:linear-gradient(135deg,var(--ey),var(--eo));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.chip{display:inline-block;padding:3px 10px;border-radius:50px;font-size:.66rem;font-weight:700}
+.ch-g{background:rgba(16,185,129,.12);color:var(--em)}
+.ch-r{background:rgba(244,63,94,.12);color:var(--er)}
+.ch-y{background:rgba(245,158,11,.1);color:var(--ey)}
+.ch-v{background:rgba(108,99,255,.12);color:var(--vi2)}
+/* COVER */
+.cov{display:flex;flex-direction:column;align-items:center;text-align:center;max-width:780px}
+.orb{width:96px;height:96px;border-radius:50%;margin-bottom:20px;display:flex;align-items:center;justify-content:center;font-size:2.6rem;background:linear-gradient(135deg,rgba(108,99,255,.35),rgba(56,189,248,.22));border:1px solid rgba(255,255,255,.09);box-shadow:0 0 55px rgba(108,99,255,.22);animation:fl 5s ease-in-out infinite}
+@keyframes fl{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}
+.kpi-row{display:flex;gap:11px;flex-wrap:wrap;justify-content:center}
+.kpi{background:var(--glass);border:1px solid var(--b);border-radius:13px;padding:10px 18px;text-align:center}
+.kpi-v{font-size:1.05rem;font-weight:800}
+.kpi-l{font-size:.58rem;color:var(--muted);margin-top:3px;letter-spacing:.5px;text-transform:uppercase}
+/* DATA */
+.d4{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;width:100%;max-width:840px;margin-bottom:14px}
+.d4c{background:var(--glass);border:1px solid var(--b);border-radius:15px;padding:16px 20px;display:flex;align-items:center;gap:13px;transition:.25s}
+.d4c:hover{background:var(--glass2);border-color:var(--b2);transform:translateY(-2px)}
+.d4c-ic{width:42px;height:42px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:1.25rem;flex-shrink:0}
+.d4c-v{font-size:1.25rem;font-weight:800;line-height:1}
+.d4c-l{font-size:.7rem;color:var(--dim);margin-top:3px}
+.segbar{width:100%;max-width:840px;margin-bottom:11px}
+.sbl{display:flex;justify-content:space-between;font-size:.7rem;color:var(--muted);margin-bottom:5px}
+.sbt{height:7px;background:rgba(255,255,255,.05);border-radius:50px;overflow:hidden;display:flex}
+.sb1{background:linear-gradient(90deg,var(--vi),var(--vi3))}
+.sb2{background:linear-gradient(90deg,var(--ey),var(--eo))}
+.nwc{width:100%;max-width:840px;background:rgba(16,185,129,.04);border:1px solid rgba(16,185,129,.14);border-radius:13px;padding:13px 20px;display:flex;align-items:center;gap:11px}
+.nwc-t{font-size:.82rem;color:#a7f3d0;line-height:1.6}
+/* FORMULA */
+.fbox{width:100%;max-width:780px}
+.fmono{background:rgba(255,255,255,.025);border:1px solid var(--b);border-radius:11px;padding:11px 18px;font-family:'Courier New',monospace;font-size:.85rem;color:var(--vi2);text-align:center;letter-spacing:.4px;margin-bottom:20px}
+.fsteps{display:flex;flex-direction:column;gap:11px;margin-bottom:20px}
+.fst{display:flex;gap:13px;align-items:flex-start}
+.fsn{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:800;flex-shrink:0;margin-top:1px}
+.fn-v{background:rgba(108,99,255,.22);color:var(--vi2)}
+.fn-r{background:rgba(244,63,94,.18);color:var(--er)}
+.fs-title{font-size:.78rem;font-weight:700;margin-bottom:3px}
+.fs-body{font-size:.8rem;color:var(--dim);line-height:1.6}
+.fres{background:var(--glass);border:1px solid var(--b);border-radius:15px;padding:20px 26px;display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap}
+.fr-num{font-size:2.9rem;font-weight:900;line-height:1;font-family:'Playfair Display',serif}
+.fr-sub{font-size:.7rem;color:var(--dim);margin-top:5px}
+.fr-desc{font-size:.8rem;color:var(--dim);max-width:340px;line-height:1.7}
+/* TABLE */
+.tbl{width:100%;max-width:940px;border-collapse:collapse}
+.tbl thead tr{background:rgba(255,255,255,.022)}
+.tbl th{padding:10px 14px;font-size:.65rem;text-transform:uppercase;letter-spacing:1px;color:var(--muted);border-bottom:1px solid var(--b);text-align:left;font-weight:700}
+.tbl td{padding:12px 14px;font-size:.8rem;border-bottom:1px solid rgba(255,255,255,.036);vertical-align:middle}
+.tbl tr:hover td{background:rgba(255,255,255,.022)}
+.tnote{margin-top:14px;max-width:940px;background:rgba(108,99,255,.04);border:1px solid rgba(108,99,255,.14);border-radius:11px;padding:11px 16px;font-size:.76rem;color:#c7d2fe;line-height:1.6}
+/* SIM */
+.sim{display:grid;grid-template-columns:1.1fr 1fr;gap:22px;width:100%;max-width:940px}
+.simc{display:flex;flex-direction:column;gap:14px}
+.sr{display:flex;flex-direction:column;gap:6px}
+.sr label{display:flex;justify-content:space-between;font-size:.7rem;font-weight:700;color:var(--dim)}
+.sr label span{color:var(--vi3);font-weight:800}
+input[type=range]{width:100%;accent-color:var(--vi);height:3px;cursor:pointer}
+.sreset{padding:8px;border-radius:9px;background:var(--glass);border:1px solid var(--b);color:var(--dim);font-size:.7rem;font-weight:700;cursor:pointer;width:100%;font-family:'Inter',sans-serif;transition:.2s}
+.sreset:hover{color:var(--txt);border-color:var(--b2)}
+.simo{display:flex;flex-direction:column;gap:10px}
+.soc{background:var(--glass);border:1px solid var(--b);border-radius:13px;padding:14px 18px}
+.sol{font-size:.6rem;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);margin-bottom:5px}
+.son{font-size:1.8rem;font-weight:800;line-height:1;margin-bottom:4px}
+.sos{font-size:.72rem;color:var(--dim);line-height:1.5}
+/* TAFSIR */
+.tfg{display:grid;grid-template-columns:1fr 1fr;gap:13px;width:100%;max-width:940px}
+.tfc{background:var(--glass);border:1px solid var(--b);border-radius:17px;padding:20px;position:relative;overflow:hidden;transition:.28s}
+.tfc:hover{background:var(--glass2);transform:translateY(-3px)}
+.tfc::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+.tc-g::before{background:linear-gradient(90deg,var(--em),var(--vi3))}
+.tc-y::before{background:linear-gradient(90deg,var(--ey),var(--eo))}
+.tc-r::before{background:linear-gradient(90deg,var(--er),var(--eo))}
+.tc-v::before{background:linear-gradient(90deg,var(--vi),var(--vi2))}
+.tc-no{font-size:.58rem;font-weight:800;letter-spacing:3px;color:var(--muted);text-transform:uppercase;margin-bottom:7px}
+.tc-t{font-size:.92rem;font-weight:800;margin-bottom:4px}
+.tc-s{font-size:.7rem;font-weight:600;color:var(--vi3);margin-bottom:9px}
+.tc-b{font-size:.78rem;color:var(--dim);line-height:1.6}
+/* REKO */
+.verd{width:100%;max-width:880px;margin-bottom:18px;border-radius:15px;padding:14px 22px;display:flex;align-items:center;gap:13px;background:rgba(16,185,129,.04);border:1px solid rgba(16,185,129,.16)}
+.vd-t{font-size:.96rem;font-weight:800;color:var(--em)}
+.vd-s{font-size:.76rem;color:var(--dim);margin-top:3px;line-height:1.5}
+.rkg{display:grid;grid-template-columns:repeat(3,1fr);gap:11px;width:100%;max-width:880px}
+.rkc{background:var(--glass);border:1px solid var(--b);border-radius:13px;padding:15px;position:relative;overflow:hidden;transition:.25s}
+.rkc:hover{background:var(--glass2);transform:translateY(-3px)}
+.rkc::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1.5px}
+.rk-bk::after{background:linear-gradient(90deg,var(--vi),var(--vi2))}
+.rk-tk::after{background:linear-gradient(90deg,var(--em),var(--vi3))}
+.rk-tag{font-size:.58rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px}
+.rk-t{font-size:.82rem;font-weight:800;margin-bottom:5px}
+.rk-b{font-size:.73rem;color:var(--dim);line-height:1.6}
+/* KESIMPULAN */
+.hasil-box{width:100%;max-width:940px;margin-bottom:14px}
+.hasil-title{font-size:.68rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--dim);margin-bottom:10px}
+.hasil-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.hg{background:var(--glass);border:1px solid var(--b);border-radius:13px;padding:14px 16px;text-align:center;position:relative;overflow:hidden}
+.hg::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+.hg1::before{background:linear-gradient(90deg,var(--vi),var(--vi3))}
+.hg2::before{background:linear-gradient(90deg,var(--em),var(--vi3))}
+.hg3::before{background:linear-gradient(90deg,var(--er),var(--eo))}
+.hg4::before{background:linear-gradient(90deg,var(--ey),var(--eo))}
+.hg-num{font-size:1.5rem;font-weight:900;line-height:1;margin-bottom:5px;font-family:'Playfair Display',serif}
+.hg-label{font-size:.64rem;color:var(--dim);letter-spacing:.5px;margin-bottom:5px}
+.hg-status{font-size:.62rem;font-weight:700;padding:2px 8px;border-radius:50px}
+.cg{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;width:100%;max-width:940px;margin-bottom:16px}
+.cc{background:var(--glass);border:1px solid var(--b);border-radius:17px;padding:22px;position:relative;overflow:hidden;transition:.28s;text-align:center}
+.cc:hover{background:var(--glass2);transform:translateY(-3px)}
+.cc::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+.cc1::before{background:linear-gradient(90deg,var(--vi),var(--vi2))}
+.cc2::before{background:linear-gradient(90deg,var(--em),var(--vi3))}
+.cc3::before{background:linear-gradient(90deg,var(--ey),var(--eo))}
+.cc-no{font-size:.57rem;font-weight:800;letter-spacing:3px;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
+.cc-ic{font-size:1.8rem;margin-bottom:8px}
+.cc-t{font-size:.87rem;font-weight:800;margin-bottom:7px}
+.cc-b{font-size:.74rem;color:var(--dim);line-height:1.65}
+.saran{width:100%;max-width:940px;background:rgba(245,158,11,.04);border:1px solid rgba(245,158,11,.16);border-radius:13px;padding:12px 20px;font-size:.78rem;color:#fde68a;line-height:1.65;margin-bottom:12px}
+.fin{width:100%;max-width:940px;background:var(--glass);border:1px solid var(--b);border-radius:13px;padding:13px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.fin-l strong{font-size:.85rem}
+.fin-l p{font-size:.7rem;color:var(--dim);margin-top:3px}
+.fin-btns{display:flex;gap:8px}
+.fb{padding:7px 17px;border-radius:8px;font-size:.68rem;font-weight:700;cursor:pointer;border:none;font-family:'Inter',sans-serif;transition:.2s}
+.fb-p{background:linear-gradient(135deg,var(--vi),var(--vi2));color:#fff}
+.fb-p:hover{opacity:.85}
+.fb-s{background:var(--glass);border:1px solid var(--b);color:var(--dim)}
+.fb-s:hover{color:var(--txt)}
+@media(max-width:768px){.sl{padding:58px 18px 68px}.d4,.tfg,.rkg,.cg,.sim,.hasil-grid{grid-template-columns:1fr}.arr,.nb-tabs{display:none}.dots{right:8px}}
+</style>
+</head>
+<body>
+<nav class="nb">
+  <div class="nb-brand">SB.</div>
+  <div class="nb-tabs">
+    <button class="nbt on" onclick="goTo(0)">Cover</button>
+    <button class="nbt" onclick="goTo(1)">Data</button>
+    <button class="nbt" onclick="goTo(2)">Current Ratio</button>
+    <button class="nbt" onclick="goTo(3)">Quick Ratio</button>
+    <button class="nbt" onclick="goTo(4)">AI vs Manual</button>
+    <button class="nbt" onclick="goTo(5)">Simulator</button>
+    <button class="nbt" onclick="goTo(6)">Tafsir</button>
+    <button class="nbt" onclick="goTo(7)">Rekomendasi</button>
+    <button class="nbt" onclick="goTo(8)">Kesimpulan</button>
+  </div>
+  <button class="nb-pdf" onclick="window.print()">PDF</button>
+</nav>
+<div class="dots" id="dots"></div>
+<button class="arr al" onclick="prev()">&#8249;</button>
+<button class="arr ar" onclick="next()">&#8250;</button>
+<div class="prog"><div class="pb" id="pb" style="width:0%"></div></div>
+<div class="ctr" id="ctr">01 / 09</div>
+<div class="hint">SCROLL - PANAH</div>
+<button class="abtn" id="abtn" onclick="toggleAuto()">&#9646;&#9646; Auto</button>
+<div class="wrap">
+<div class="sl on">
+  <div class="cov">
+    <div style="font-size:.6rem;letter-spacing:4px;text-transform:uppercase;color:var(--muted);margin-bottom:16px">Praktikum AI untuk Manajemen - Studi Kasus 2 - Keuangan</div>
+    <div class="orb">&#127978;</div>
+    <h1 style="font-family:'Playfair Display',serif;font-size:clamp(2rem,5.5vw,4rem);font-weight:900;line-height:1.08;text-align:center;margin-bottom:12px"><span class="gv">Toko Sembako Berkah</span><br/><span style="font-size:.55em;color:var(--dim);font-weight:700">Analisis Likuiditas &amp; Kelayakan Kredit</span></h1>
+    <p style="font-size:.9rem;color:var(--dim);text-align:center;line-height:1.8;max-width:540px;margin-bottom:26px">Perbandingan Hitungan AI vs Manual - Tafsir Risiko Perbankan - Rekomendasi sebelum persetujuan kredit modal kerja</p>
+    <div class="kpi-row">
+      <div class="kpi"><div class="kpi-v" style="color:var(--vi2)">Rp 180 jt</div><div class="kpi-l">Aset Lancar</div></div>
+      <div class="kpi"><div class="kpi-v" style="color:var(--ey)">Rp 90 jt</div><div class="kpi-l">Persediaan</div></div>
+      <div class="kpi"><div class="kpi-v" style="color:var(--er)">Rp 120 jt</div><div class="kpi-l">Kewajiban</div></div>
+      <div class="kpi"><div class="kpi-v" style="color:var(--em)">1,50x</div><div class="kpi-l">Current Ratio</div></div>
+      <div class="kpi"><div class="kpi-v" style="color:var(--er)">0,75x</div><div class="kpi-l">Quick Ratio</div></div>
+      <div class="kpi"><div class="kpi-v" style="color:var(--em)">Rp 60 jt</div><div class="kpi-l">NWC Surplus</div></div>
+    </div>
+  </div>
+</div>
+<div class="sl">
+  <span class="tag tg-b">01 - Data Finansial</span>
+  <h1 class="T">Struktur Modal Kerja <span class="gv">Toko Sembako Berkah</span></h1>
+  <p class="S">Rincian posisi aset jangka pendek dan kewajiban lancar yang diajukan dalam evaluasi kredit bank.</p>
+  <div class="d4">
+    <div class="d4c"><div class="d4c-ic" style="background:rgba(108,99,255,.12)">&#128176;</div><div><div class="d4c-v" style="color:var(--vi2)">Rp 180.000.000</div><div class="d4c-l">Aset Lancar Total - 100% aset jangka pendek</div></div></div>
+    <div class="d4c"><div class="d4c-ic" style="background:rgba(245,158,11,.1)">&#128230;</div><div><div class="d4c-v" style="color:var(--ey)">Rp 90.000.000</div><div class="d4c-l">Persediaan Barang - 50% dari total aset lancar</div></div></div>
+    <div class="d4c"><div class="d4c-ic" style="background:rgba(16,185,129,.1)">&#128181;</div><div><div class="d4c-v" style="color:var(--em)">Rp 90.000.000</div><div class="d4c-l">Kas &amp; Piutang - 50% aset non-persediaan</div></div></div>
+    <div class="d4c"><div class="d4c-ic" style="background:rgba(244,63,94,.1)">&#127970;</div><div><div class="d4c-v" style="color:var(--er)">Rp 120.000.000</div><div class="d4c-l">Kewajiban Lancar - Utang jangka pendek jatuh tempo</div></div></div>
+  </div>
+  <div class="segbar">
+    <div class="sbl"><span>Kas &amp; Piutang (50%)</span><span>Persediaan (50%)</span></div>
+    <div class="sbt"><div class="sb1" style="width:50%"></div><div class="sb2" style="width:50%"></div></div>
+  </div>
+  <div class="nwc"><span style="font-size:1.2rem">&#9989;</span><div class="nwc-t"><strong style="color:var(--em)">Net Working Capital (NWC): Rp 60.000.000 - Surplus Positif</strong><br/>Rp 180.000.000 - Rp 120.000.000 = Rp 60.000.000. Penyangga modal kerja masih tersedia.</div></div>
+</div>
+<div class="sl">
+  <span class="tag tg-g">02 - Current Ratio</span>
+  <h1 class="T">Rasio Lancar <span class="gg">= 1,50x</span></h1>
+  <p class="S">Mengukur kemampuan seluruh aset lancar toko untuk melunasi seluruh kewajiban jangka pendek yang jatuh tempo.</p>
+  <div class="fbox">
+    <div class="fmono">Current Ratio = Aset Lancar / Kewajiban Lancar</div>
+    <div class="fsteps">
+      <div class="fst"><div class="fsn fn-v">1</div><div><div class="fs-title">Masukkan Nominal</div><div class="fs-body">Aset Lancar = Rp 180.000.000 | Kewajiban Lancar = Rp 120.000.000</div></div></div>
+      <div class="fst"><div class="fsn fn-v">2</div><div><div class="fs-title">Lakukan Pembagian</div><div class="fs-body">180.000.000 / 120.000.000 = 180 / 120 = 3 / 2 = <strong style="color:var(--vi2)">1,50 kali</strong></div></div></div>
+      <div class="fst"><div class="fsn fn-v">3</div><div><div class="fs-title">Interpretasi &amp; Sisa Modal</div><div class="fs-body">1,50 x 100% = <strong style="color:var(--vi2)">150%</strong>. Setelah menutup utang Rp 120 jt, tersisa modal kerja bersih <strong style="color:var(--em)">Rp 60.000.000</strong>.</div></div></div>
+    </div>
+    <div class="fres">
+      <div><div class="fr-num gg">1,50x</div><div class="fr-sub">= 150% &nbsp;<span class="chip ch-y">Moderat / Aman</span></div></div>
+      <div class="fr-desc">Setiap Rp 1,00 utang jangka pendek dijamin oleh Rp 1,50 aset lancar. Jika seluruh aset dicairkan untuk menutup utang Rp 120 jt, toko masih menyisakan <strong style="color:var(--em)">Rp 60.000.000</strong> sebagai cadangan modal kerja.</div>
+    </div>
+  </div>
+</div>
+<div class="sl">
+  <span class="tag tg-r">03 - Quick Ratio</span>
+  <h1 class="T">Rasio Cepat <span class="gr">= 0,75x</span></h1>
+  <p class="S">Mengukur kemampuan aset paling likuid (kas &amp; piutang tanpa persediaan) untuk menutup utang lancar secara seketika.</p>
+  <div class="fbox">
+    <div class="fmono">Quick Ratio = (Aset Lancar - Persediaan) / Kewajiban Lancar</div>
+    <div class="fsteps">
+      <div class="fst"><div class="fsn fn-r">1</div><div><div class="fs-title">Kurangi Persediaan dari Aset Lancar</div><div class="fs-body">Rp 180.000.000 - Rp 90.000.000 = <strong style="color:var(--vi2)">Rp 90.000.000</strong> (aset tunai &amp; piutang siap pakai)</div></div></div>
+      <div class="fst"><div class="fsn fn-r">2</div><div><div class="fs-title">Bagi dengan Kewajiban Lancar</div><div class="fs-body">Rp 90.000.000 / Rp 120.000.000 = 90 / 120 = 3 / 4 = <strong style="color:var(--er)">0,75 kali</strong></div></div></div>
+      <div class="fst"><div class="fsn fn-r">3</div><div><div class="fs-title">Hitung Defisit Likuiditas Cepat</div><div class="fs-body">Rp 90.000.000 - Rp 120.000.000 = <strong style="color:var(--er)">-Rp 30.000.000</strong> (kekurangan tunai jika stok belum laku terjual)</div></div></div>
+    </div>
+    <div class="fres">
+      <div><div class="fr-num gr">0,75x</div><div class="fr-sub">= 75% &nbsp;<span class="chip ch-r">Di Bawah Ideal 1,00x</span></div></div>
+      <div class="fr-desc">Tanpa menjual stok, kas &amp; piutang Rp 90 jt hanya sanggup menutup <strong style="color:var(--er)">75%</strong> dari utang Rp 120 jt. Terdapat <strong style="color:var(--er)">defisit -Rp 30.000.000</strong> jika tagihan jatuh tempo mendadak.</div>
+    </div>
+  </div>
+</div>
+<div class="sl">
+  <span class="tag tg-v">04 - AI vs Manual</span>
+  <h1 class="T">Verifikasi Akurasi <span class="gv">Komputasi Buku Teks</span></h1>
+  <p class="S">Pencatatan selisih antara keluaran AI dengan perhitungan manual menggunakan rumus standar literatur keuangan.</p>
+  <table class="tbl">
+    <thead><tr><th>Indikator Keuangan</th><th>Hasil AI</th><th>Hasil Manual</th><th>Selisih</th><th>Standar Ideal</th><th>Status</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Current Ratio</strong></td><td style="color:var(--vi2);font-weight:700">1,50x (150%)</td><td style="color:var(--em);font-weight:700">1,50x (150%)</td><td style="color:var(--em)">0 (0,00%)</td><td style="color:var(--dim)">Min 1,50x-2,00x</td><td><span class="chip ch-g">Akurat - Aman</span></td></tr>
+      <tr><td><strong>Quick Ratio</strong></td><td style="color:var(--vi2);font-weight:700">0,75x (75%)</td><td style="color:var(--ey);font-weight:700">0,75x (75%)</td><td style="color:var(--em)">0 (0,00%)</td><td style="color:var(--dim)">Min 1,00x</td><td><span class="chip ch-y">Akurat - Ketat</span></td></tr>
+      <tr><td><strong>Sisa Modal Kerja (NWC)</strong></td><td style="color:var(--vi2);font-weight:700">Rp 60.000.000</td><td style="color:var(--em);font-weight:700">Rp 60.000.000</td><td style="color:var(--em)">Rp 0</td><td style="color:var(--dim)">Positif</td><td><span class="chip ch-g">Surplus</span></td></tr>
+      <tr><td><strong>Defisit Likuiditas Cepat</strong></td><td style="color:var(--er);font-weight:700">-Rp 30.000.000</td><td style="color:var(--er);font-weight:700">-Rp 30.000.000</td><td style="color:var(--em)">Rp 0</td><td style="color:var(--dim)">&gt;= Rp 0</td><td><span class="chip ch-r">Defisit</span></td></tr>
+    </tbody>
+  </table>
+  <div class="tnote">Selisih AI vs Manual = 0 (nol) untuk semua indikator. AI sangat presisi dalam operasi aritmatika dasar, namun tetap wajib diverifikasi manual dan ditafsirkan secara kualitatif agar tidak salah dalam pengambilan keputusan kredit.</div>
+</div>
+<div class="sl">
+  <span class="tag tg-y">05 - Simulator Interaktif</span>
+  <h1 class="T">Uji Sensitivitas Neraca <span class="gy">Real-Time</span></h1>
+  <p class="S">Geser slider untuk melihat dampak perubahan data keuangan terhadap posisi likuiditas dan kelayakan kredit toko.</p>
+  <div class="sim">
+    <div class="simc">
+      <div class="sr"><label>Aset Lancar <span id="slAL">Rp 180.000.000</span></label><input type="range" id="rAL" min="50000000" max="300000000" step="5000000" value="180000000" oninput="calcSim()"/></div>
+      <div class="sr"><label>Persediaan <span id="slPD">Rp 90.000.000</span></label><input type="range" id="rPD" min="0" max="250000000" step="5000000" value="90000000" oninput="calcSim()"/></div>
+      <div class="sr"><label>Kewajiban Lancar <span id="slKL">Rp 120.000.000</span></label><input type="range" id="rKL" min="10000000" max="250000000" step="5000000" value="120000000" oninput="calcSim()"/></div>
+      <button class="sreset" onclick="resetSim()">Reset ke Data Soal</button>
+    </div>
+    <div class="simo">
+      <div class="soc"><div class="sol">Current Ratio</div><div class="son" id="simCR" style="color:var(--em)">1,50x</div><div class="sos" id="simCRS">Moderat (>= 1,50x)</div></div>
+      <div class="soc"><div class="sol">Quick Ratio</div><div class="son" id="simQR" style="color:var(--er)">0,75x</div><div class="sos" id="simQRS">Di bawah ideal 1,00x</div></div>
+      <div class="soc"><div class="sol">Sisa Modal Kerja</div><div class="son" id="simNWC" style="color:var(--em)">+Rp 60.000.000</div></div>
+      <div class="soc"><div class="sol">Status Kelayakan</div><div id="simV" style="font-size:.85rem;font-weight:800;color:var(--ey);line-height:1.5">Layak Bersyarat - Risiko Moderat</div></div>
+    </div>
+  </div>
+</div>
+<div class="sl">
+  <span class="tag tg-v">06 - Tafsir Kondisi Toko</span>
+  <h1 class="T">Empat Pilar <span class="gv">Diagnosis Bisnis</span></h1>
+  <p class="S">Interpretasi manajerial mendalam terhadap kondisi operasional dan likuiditas Toko Sembako Berkah.</p>
+  <div class="tfg">
+    <div class="tfc tc-g"><div class="tc-no">01</div><div class="tc-t">Likuiditas Total Aman</div><div class="tc-s">Current Ratio 1,50x - Sisa NWC Rp 60 jt</div><div class="tc-b">Secara keseluruhan, toko mampu melunasi seluruh utang Rp 120 jt dan masih menyisakan modal kerja bersih Rp 60 jt, asalkan persediaan barang dagangan dapat terjual secara normal.</div></div>
+    <div class="tfc tc-y"><div class="tc-no">02</div><div class="tc-t">Dominasi Stok Gudang</div><div class="tc-s">50% Aset Lancar Tertahan di Stok Rp 90 jt</div><div class="tc-b">Separuh dari aset lancar berupa persediaan sembako Rp 90 jt. Ketergantungan tinggi pada stok menekan Quick Ratio turun ke 0,75x di bawah standar perbankan 1,00x.</div></div>
+    <div class="tfc tc-r"><div class="tc-no">03</div><div class="tc-t">Risiko Defisit Kas -Rp 30 jt</div><div class="tc-s">Defisit Mendadak Jika Stok Belum Laku</div><div class="tc-b">Apabila utang Rp 120 jt jatuh tempo mendadak sebelum stok terjual, kas &amp; piutang Rp 90 jt akan mengalami defisit tunai sebesar <strong style="color:var(--er)">-Rp 30.000.000</strong>.</div></div>
+    <div class="tfc tc-v"><div class="tc-no">04</div><div class="tc-t">Keunggulan Ritel Sembako</div><div class="tc-s">Barang Pokok Fast-Moving Harian</div><div class="tc-b">Berbeda dengan barang mewah, sembako adalah kebutuhan pokok harian dengan perputaran tinggi (fast-moving), sehingga stok Rp 90 jt relatif cepat terkonversi menjadi kas tunai.</div></div>
+  </div>
+</div>
+<div class="sl">
+  <span class="tag tg-g">07 - Rekomendasi Bank</span>
+  <h1 class="T">Keputusan Kredit &amp; <span class="gg">Mitigasi Risiko</span></h1>
+  <p class="S">Rekomendasi komite kredit bank serta langkah perbaikan internal bagi pemilik Toko Sembako Berkah.</p>
+  <div class="verd"><span style="font-size:1.5rem">&#127970;</span><div><div class="vd-t">Layak Disetujui dengan Syarat - Risiko Moderat</div><div class="vd-s">Kredit modal kerja dapat diberikan untuk mendukung perputaran sembako, disertai pengamanan jaminan dan disiplin pengelolaan kas harian.</div></div></div>
+  <div class="rkg">
+    <div class="rkc rk-bk"><div class="rk-tag" style="color:var(--vi2)">Bank - 01</div><div class="rk-t">Penambahan Agunan</div><div class="rk-b">Meminta jaminan tambahan (collateral) aset tetap/kendaraan guna menutup celah defisit likuiditas cepat Rp 30.000.000.</div></div>
+    <div class="rkc rk-bk"><div class="rk-tag" style="color:var(--vi2)">Bank - 02</div><div class="rk-t">Penyesuaian Plafon</div><div class="rk-b">Menetapkan plafon modal kerja proporsional sesuai kapasitas arus kas bulanan agar cicilan tidak membebani likuiditas.</div></div>
+    <div class="rkc rk-bk"><div class="rk-tag" style="color:var(--vi2)">Bank - 03</div><div class="rk-t">Pencairan Bertahap</div><div class="rk-b">Menyalurkan kredit berbasis faktur pembelian barang pokok laris untuk mencegah penumpukan stok mati.</div></div>
+    <div class="rkc rk-tk"><div class="rk-tag" style="color:var(--em)">Toko - 04</div><div class="rk-t">Pantau Perputaran Stok</div><div class="rk-b">Menerapkan pencatatan FIFO dan diskon bundel untuk mempercepat konversi persediaan Rp 90 jt menjadi kas tunai.</div></div>
+    <div class="rkc rk-tk"><div class="rk-tag" style="color:var(--em)">Toko - 05</div><div class="rk-t">Efisiensi Penagihan</div><div class="rk-b">Memperketat penjualan kredit/tempo ke pelanggan agar komponen Rp 90 jt aset likuid lebih dominan berupa kas.</div></div>
+    <div class="rkc rk-tk"><div class="rk-tag" style="color:var(--em)">Toko - 06</div><div class="rk-t">Selaraskan Tempo Utang</div><div class="rk-b">Menegosiasikan jadwal pembayaran ke pemasok agar selaras dengan siklus pemasukan harian sehingga kas tetap aman.</div></div>
+  </div>
+</div>
+<div class="sl">
+  <span class="tag tg-g">08 - Kesimpulan &amp; Hasil Perhitungan</span>
+  <h1 class="T">Ringkasan <span class="gv">Lengkap &amp; Hasil Akhir</span></h1>
+  <div class="hasil-box">
+    <div class="hasil-title">Hasil Perhitungan Lengkap</div>
+    <div class="hasil-grid">
+      <div class="hg hg1"><div class="hg-label">Current Ratio</div><div class="hg-num" style="color:var(--em)">1,50x</div><div style="font-size:.68rem;color:var(--dim);margin-bottom:5px">Rp 180 jt / Rp 120 jt</div><span class="hg-status" style="background:rgba(245,158,11,.12);color:var(--ey)">Moderat</span></div>
+      <div class="hg hg2"><div class="hg-label">Quick Ratio</div><div class="hg-num" style="color:var(--er)">0,75x</div><div style="font-size:.68rem;color:var(--dim);margin-bottom:5px">Rp 90 jt / Rp 120 jt</div><span class="hg-status" style="background:rgba(244,63,94,.12);color:var(--er)">Di Bawah Ideal</span></div>
+      <div class="hg hg3"><div class="hg-label">Defisit Likuiditas</div><div class="hg-num" style="color:var(--er)">-Rp30jt</div><div style="font-size:.68rem;color:var(--dim);margin-bottom:5px">Rp 90 jt - Rp 120 jt</div><span class="hg-status" style="background:rgba(244,63,94,.12);color:var(--er)">Waspada</span></div>
+      <div class="hg hg4"><div class="hg-label">Sisa Modal (NWC)</div><div class="hg-num" style="color:var(--em)">+Rp60jt</div><div style="font-size:.68rem;color:var(--dim);margin-bottom:5px">Rp 180 jt - Rp 120 jt</div><span class="hg-status" style="background:rgba(16,185,129,.12);color:var(--em)">Surplus</span></div>
+    </div>
+  </div>
+  <div class="cg">
+    <div class="cc cc1"><div class="cc-no">Kesimpulan 1</div><div class="cc-ic">&#129302;</div><div class="cc-t">AI &amp; Manual Identik</div><div class="cc-b">Selisih AI vs Manual = <strong style="color:var(--em)">0 (nol)</strong>. Current Ratio <strong style="color:var(--vi2)">1,50x</strong>, Quick Ratio <strong style="color:var(--er)">0,75x</strong>, NWC <strong style="color:var(--em)">+Rp 60 jt</strong>.</div></div>
+    <div class="cc cc2"><div class="cc-no">Kesimpulan 2</div><div class="cc-ic">&#9888;&#65039;</div><div class="cc-t">Likuiditas Moderat</div><div class="cc-b">Current Ratio aman (1,50x), namun Quick Ratio <strong style="color:var(--er)">0,75x</strong> menunjukkan <strong style="color:var(--er)">defisit -Rp 30 jt</strong> jika tagihan mendadak. 50% aset tertahan di persediaan.</div></div>
+    <div class="cc cc3"><div class="cc-no">Kesimpulan 3</div><div class="cc-ic">&#127970;</div><div class="cc-t">Layak Bersyarat</div><div class="cc-b">Bank dapat menyetujui kredit modal kerja dengan syarat: tambahan agunan, plafon proporsional, dan pemantauan perputaran stok Rp 90 jt secara berkala.</div></div>
+  </div>
+  <div class="saran">&#128161; <strong>Saran Evaluasi:</strong> Jalankan monitoring arus kas setiap 2 minggu. Targetkan Quick Ratio naik ke <strong>&gt;= 1,00x</strong> dengan mempercepat penjualan stok Rp 90 jt atau menurunkan kewajiban lancar di bawah Rp 90 jt. Jika berhasil, profil risiko pengajuan kredit berikutnya akan jauh lebih baik.</div>
+  <div class="fin">
+    <div class="fin-l"><strong>Laporan Analisis Likuiditas - Toko Sembako Berkah</strong><p>Praktikum AI untuk Manajemen - Studi Kasus 2 - Current Ratio 1,50x - Quick Ratio 0,75x</p></div>
+    <div class="fin-btns"><button class="fb fb-s" onclick="goTo(0)">Slide Awal</button><button class="fb fb-p" onclick="window.print()">Cetak PDF</button></div>
+  </div>
+</div>
+</div>
+<script>
+const TOTAL=9,DELAY=6500;
+let cur=0,autoOn=true,timer=null;
+const sls=document.querySelectorAll(".sl");
+const pb=document.getElementById("pb");
+const ctr=document.getElementById("ctr");
+const abtn=document.getElementById("abtn");
+const nbts=document.querySelectorAll(".nbt");
+const dw=document.getElementById("dots");
+for(let i=0;i<TOTAL;i++){const b=document.createElement("button");b.className="d"+(i===0?" on":"");b.onclick=(n=>()=>goTo(n))(i);dw.appendChild(b);}
+const ds=document.querySelectorAll(".d");
+function goTo(n){if(n===cur)return;sls[cur].classList.remove("on");sls[cur].classList.add("off");nbts[cur].classList.remove("on");ds[cur].classList.remove("on");setTimeout(()=>sls[cur].classList.remove("off"),750);cur=(n+TOTAL)%TOTAL;sls[cur].classList.add("on");nbts[cur].classList.add("on");ds[cur].classList.add("on");ctr.textContent=String(cur+1).padStart(2,"0")+" / "+String(TOTAL).padStart(2,"0");if(autoOn)startBar();}
+function next(){goTo(cur+1);resetT()}
+function prev(){goTo(cur-1);resetT()}
+function startBar(){pb.style.transition="none";pb.style.width="0%";setTimeout(()=>{pb.style.transition="width "+DELAY+"ms linear";pb.style.width="100%";},40);}
+function resetT(){clearTimeout(timer);if(autoOn){startBar();timer=setTimeout(next,DELAY);}}
+function toggleAuto(){autoOn=!autoOn;if(autoOn){abtn.innerHTML="&#9646;&#9646; Auto";resetT();}else{abtn.innerHTML="&#9654; Auto";clearTimeout(timer);pb.style.transition="none";pb.style.width="0%";}}
+document.addEventListener("keydown",e=>{if(["ArrowRight","ArrowDown"," "].includes(e.key)){e.preventDefault();next();}if(["ArrowLeft","ArrowUp"].includes(e.key)){e.preventDefault();prev();}});
+let wt=0;document.addEventListener("wheel",e=>{if(Date.now()-wt<900)return;wt=Date.now();e.deltaY>0?next():prev();});
+let tx=0;document.addEventListener("touchstart",e=>tx=e.touches[0].clientX,{passive:true});document.addEventListener("touchend",e=>{const d=tx-e.changedTouches[0].clientX;if(Math.abs(d)>50)d>0?next():prev();});
+function fmt(n){return"Rp "+n.toLocaleString("id-ID")}
+function calcSim(){const AL=+document.getElementById("rAL").value;const PD=+document.getElementById("rPD").value;const KL=+document.getElementById("rKL").value;document.getElementById("slAL").textContent=fmt(AL);document.getElementById("slPD").textContent=fmt(PD);document.getElementById("slKL").textContent=fmt(KL);const cr=AL/KL,qr=(AL-PD)/KL,nwc=AL-KL;const crEl=document.getElementById("simCR");const qrEl=document.getElementById("simQR");const nwcEl=document.getElementById("simNWC");const vEl=document.getElementById("simV");crEl.textContent=cr.toFixed(2)+"x";qrEl.textContent=qr.toFixed(2)+"x";crEl.style.color=cr>=1.5?"var(--em)":"var(--er)";qrEl.style.color=qr>=1?"var(--em)":"var(--er)";document.getElementById("simCRS").textContent=cr>=2?"Ideal (>=2,00x)":cr>=1.5?"Moderat (>=1,50x)":"Di bawah 1,50x";document.getElementById("simQRS").textContent=qr>=1?"Ideal (>=1,00x)":"Di bawah ideal 1,00x";nwcEl.textContent=(nwc>=0?"+":"")+fmt(nwc);nwcEl.style.color=nwc>=0?"var(--em)":"var(--er)";if(cr>=2&&qr>=1){vEl.textContent="Layak Disetujui - Risiko Rendah";vEl.style.color="var(--em)";}else if(cr>=1.5&&qr>=0.5){vEl.textContent="Layak Bersyarat - Risiko Moderat";vEl.style.color="var(--ey)";}else{vEl.textContent="Belum Layak - Risiko Tinggi";vEl.style.color="var(--er)";}}
+function resetSim(){document.getElementById("rAL").value=180000000;document.getElementById("rPD").value=90000000;document.getElementById("rKL").value=120000000;calcSim();}
+startBar();timer=setTimeout(next,DELAY);
+</script>
+</body>
+</html>
